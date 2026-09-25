@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import mockTestRoutes from "./routes/mockTestRoutes.js";
 
 dotenv.config();
 
@@ -24,6 +25,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 
 app.use("/api/jobs", jobRoutes);
+
+app.use("/api/mock-tests", mockTestRoutes);
 
 const PORT = process.env.PORT || 5000;
 
