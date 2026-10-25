@@ -1,3 +1,4 @@
+
 const skillAliases = {
     "react.js": "react",
     "reactjs": "react",
@@ -41,11 +42,20 @@ const skillAliases = {
 };
 
 export const normalizeSkill = (skill) => {
+    if (typeof skill !== "string" || !skill.trim()) {
+        return "";
+    }
+
     const cleanedSkill = skill
         .toLowerCase()
-        .trim();
+        .trim()
+        .replace(/\s+/g, " ");
 
-    return skillAliases[cleanedSkill] || cleanedSkill
+    if (skillAliases[cleanedSkill]) {
+        return skillAliases[cleanedSkill];
+    }
+
+    return cleanedSkill
         .replace(/\./g, "")
         .replace(/\s+/g, "");
 };

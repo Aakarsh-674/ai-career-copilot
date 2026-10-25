@@ -1,0 +1,473 @@
+
+/* ============================
+   Mock Test History Page
+============================ */
+
+.mock-history-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+    box-sizing: border-box;
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+.mock-history-page * {
+    box-sizing: border-box;
+}
+
+.mock-history-page a {
+    text-decoration: none;
+}
+
+/* ============================
+   Page Header
+============================ */
+
+.mock-history-header {
+    max-width: 1100px;
+    margin: 0 auto 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.mock-history-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 750;
+    letter-spacing: -0.7px;
+    color: #0f172a;
+}
+
+.mock-history-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.history-new-test-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.history-new-test-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* ============================
+   Statistics Cards
+============================ */
+
+.history-stats {
+    max-width: 1100px;
+    margin: 0 auto 36px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.history-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    min-height: 125px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+}
+
+.history-stat-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.history-stat-card:nth-child(2) .history-stat-icon {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.history-stat-card:nth-child(3) .history-stat-icon {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.history-stat-card p {
+    margin: 0 0 8px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.history-stat-card h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 750;
+}
+
+/* ============================
+   History Section Heading
+============================ */
+
+.history-section-heading {
+    max-width: 1100px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.history-section-heading h2 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.history-section-heading > span {
+    padding: 6px 11px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ============================
+   Test History List
+============================ */
+
+.history-list {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.history-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.history-card-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-card-main h2 {
+    margin: 0 0 12px;
+    font-size: 19px;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+}
+
+.history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.history-tags span {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.history-date {
+    margin: 12px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* ============================
+   Scores and Status
+============================ */
+
+.history-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+    color: #475569;
+}
+
+.history-score strong {
+    font-size: 29px;
+    line-height: 1.2;
+    font-weight: 750;
+    color: #2563eb;
+}
+
+.history-score span {
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.history-score .history-pending {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: normal;
+}
+
+/* ============================
+   Review Button
+============================ */
+
+.history-review-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 10px 14px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.history-review-btn:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+/* ============================
+   Empty State
+============================ */
+
+.history-empty {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 24px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+}
+
+.history-empty h2 {
+    margin: 0 0 10px;
+    color: #0f172a;
+    font-size: 23px;
+}
+
+.history-empty p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.history-empty a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 11px 16px;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.history-empty a:hover {
+    background: #1d4ed8;
+}
+
+/* ============================
+   Error State
+============================ */
+
+.history-error {
+    max-width: 600px;
+    margin: 30px auto 16px;
+    padding: 14px 16px;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fef2f2;
+    color: #b91c1c;
+    text-align: center;
+}
+
+.mock-history-page > a {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+/* ============================
+   Tablet
+============================ */
+
+@media (max-width: 850px) {
+    .mock-history-page {
+        padding: 32px 20px 48px;
+    }
+
+    .history-stats {
+        gap: 14px;
+    }
+
+    .history-stat-card {
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .history-stat-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+
+    .history-stat-card h2 {
+        font-size: 26px;
+    }
+
+    .history-card {
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+
+    .history-card-main {
+        flex-basis: 55%;
+    }
+
+    .history-score {
+        align-items: flex-start;
+    }
+}
+
+/* ============================
+   Mobile
+============================ */
+
+@media (max-width: 600px) {
+    .mock-history-page {
+        padding: 24px 14px 40px;
+    }
+
+    .mock-history-header {
+        align-items: stretch;
+        flex-direction: column;
+        margin-bottom: 26px;
+    }
+
+    .mock-history-header h1 {
+        font-size: 27px;
+    }
+
+    .history-new-test-btn {
+        width: fit-content;
+    }
+
+    .history-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .history-stat-card {
+        min-height: 100px;
+        padding: 18px;
+    }
+
+    .history-stat-card h2 {
+        font-size: 27px;
+    }
+
+    .history-section-heading h2 {
+        font-size: 19px;
+    }
+
+    .history-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+        padding: 20px;
+    }
+
+    .history-card-main {
+        width: 100%;
+    }
+
+    .history-score {
+        align-items: flex-start;
+    }
+
+    .history-score strong {
+        font-size: 26px;
+    }
+
+    .history-review-btn {
+        width: 100%;
+        min-height: 42px;
+    }
+
+    .history-empty {
+        padding: 40px 18px;
+    }
+}

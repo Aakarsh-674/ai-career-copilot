@@ -51,6 +51,11 @@ const mockTestSchema = new mongoose.Schema(
             default: null
         },
 
+        userAnswers: {
+            type: [String],
+            default: []
+        },
+
         totalQuestions: {
             type: Number,
             required: true

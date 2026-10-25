@@ -1,184 +1,307 @@
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import api from "../api/axios";
 import "./Jobs.css";
+
+function getValidApplyUrl(value) {
+    if (typeof value !== "string" || !value.trim()) {
+        return null;
+    }
+
+    try {
+        const url = new URL(value.trim());
+
+        // Only allow regular web application links.
+        if (url.protocol !== "https:" && url.protocol !== "http:") {
+            return null;
+        }
+
+        return url.href;
+    } catch {
+        return null;
+    }
+}
 
 function Jobs() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState("");
 
-    const getJobs = async () => {
+    const getJobs = useCallback(async (isRefresh = false) => {
         try {
+            if (isRefresh) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
+            }
+
+            setError("");
+
             const response = await api.get("/api/jobs/matches");
+            console.log("Jobs returned by backend:", response.data.jobs);
 
-            console.log("Matched Jobs:", response.data.jobs);
+response.data.jobs.forEach((job) => {
+    console.log("Job:", job.title);
+    console.log("Company:", job.company);
+    console.log("Apply URL:", job.applyLink);
+});
+            //console.log("Complete API response:", response.data);
+            //console.log("First job:", response.data.jobs?.[0]);
+            //console.log("First job application URL:", response.data.jobs?.[0]?.applyLink);
+            const receivedJobs = Array.isArray(response.data.jobs)
+                ? response.data.jobs
+                : [];
 
-            setJobs(response.data.jobs);
-        } catch (error) {
-            console.error("Error fetching jobs:", error);
+            // Debug information: check the real URLs returned by the backend.
+            console.table(
+                receivedJobs.map((job) => ({
+                    id: job._id,
+                    title: job.title,
+                    company: job.company,
+                    applyLink: job.applyLink,
+                    validApplyUrl: Boolean(getValidApplyUrl(job.applyLink)),
+                }))
+            );
+
+            setJobs(receivedJobs);
+        } catch (err) {
+            console.error("Error fetching job matches:", err);
 
             setError(
-                error.response?.data?.message ||
-                "Failed to load job matches"
+                err.response?.data?.message ||
+                "Unable to load job matches. Please try again."
             );
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         getJobs();
-    }, []);
+    }, [getJobs]);
 
     if (loading) {
         return (
-            <div className="jobs-container">
-                <h1>Job Matches</h1>
-                <p>Finding jobs that match your resume...</p>
-            </div>
+            <main className="jobs-page">
+                <div className="jobs-container jobs-state-card">
+                    <div className="jobs-spinner" />
+                    <h2>Finding your job matches...</h2>
+                    <p>Loading opportunities based on your resume.</p>
+                </div>
+            </main>
         );
     }
 
-    if (error) {
+    if (error && jobs.length === 0) {
         return (
-            <div className="jobs-container">
-                <h1>Job Matches</h1>
-                <p className="error-message">{error}</p>
-            </div>
+            <main className="jobs-page">
+                <div className="jobs-container">
+                    <header className="jobs-page-header">
+                        <span className="jobs-eyebrow">
+                            CAREER OPPORTUNITIES
+                        </span>
+                        <h1>Your Job Matches</h1>
+                    </header>
+
+                    <section className="jobs-state-card">
+                        <h2>Couldn't load job matches</h2>
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            className="jobs-primary-button"
+                            onClick={() => getJobs()}
+                        >
+                            Try Again
+                        </button>
+                    </section>
+                </div>
+            </main>
         );
     }
 
     return (
-        <div className="jobs-container">
+        <main className="jobs-page">
+            <div className="jobs-container">
+                <header className="jobs-page-header">
+                    <div>
+                        <span className="jobs-eyebrow">
+                            CAREER OPPORTUNITIES
+                        </span>
+                        <h1>Your Next <span>Opportunity</span></h1>
+<p>
+    Explore roles matched to the skills in your resume.
+</p>
+<p className="jobs-source-attribution">
+    Job listings provided by{" "}
+    <a
+        href="https://himalayas.app"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        Himalayas
+    </a>.
+    Application links direct you to the original listing.
+</p>
 
-            <div className="jobs-header">
-                <h1>Job Matches</h1>
+                    </div>
 
-                <p>
-                    Jobs matched based on the skills found in your resume.
-                </p>
-            </div>
+                    <button
+                        type="button"
+                        className="jobs-refresh-button"
+                        onClick={() => getJobs(true)}
+                        disabled={refreshing}
+                    >
+                        {refreshing ? "Refreshing..." : "↻ Refresh Matches"}
+                    </button>
+                </header>
 
-            {jobs.length === 0 ? (
-                <div className="no-jobs">
-                    <h2>No matching jobs found</h2>
+                {error && (
+                    <p className="jobs-inline-error">{error}</p>
+                )}
 
-                    <p>
-                        Upload and analyze your resume to find suitable jobs.
-                    </p>
-                </div>
-            ) : (
-                <div className="jobs-list">
+                <section className="jobs-summary">
+                    <div>
+                        <h2>Recommended for you</h2>
+                        <p>
+                            Review your skill compatibility before applying.
+                        </p>
+                    </div>
+                    <strong>
+                        {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
+                    </strong>
+                </section>
 
-                    {jobs.map((job) => (
+                {jobs.length === 0 ? (
+                    <section className="jobs-state-card">
+                        <h2>No matching jobs found</h2>
+                        <p>
+                            Analyze your resume to help identify suitable roles.
+                        </p>
+                        <a href="/resume" className="jobs-primary-button">
+                            Analyze Resume →
+                        </a>
+                    </section>
+                ) : (
+                    <section className="jobs-list">
+                        {jobs.map((job) => {
+                            const percentage = Math.min(
+                                100,
+                                Math.max(0, Number(job.matchPercentage) || 0)
+                            );
 
-                        <div key={job._id} className="job-card">
+                            const matchingSkills = Array.isArray(job.matchingSkills)
+                                ? job.matchingSkills
+                                : [];
 
-                            <div className="job-header">
+                            const applyUrl = getValidApplyUrl(job.applyLink);
 
-                                <div>
-                                    <h2>{job.title}</h2>
+                            return (
+                                <article className="job-card" key={job._id}>
+                                    <div className="job-card-top">
+                                        <div className="job-company-avatar">
+                                            {(job.company || "C")
+                                                .trim()
+                                                .charAt(0)
+                                                .toUpperCase()}
+                                        </div>
 
-                                    <p className="company">
-                                        {job.company}
-                                    </p>
+                                        <div className="job-title-block">
+                                            <h2>{job.title || "Untitled role"}</h2>
+                                            <p className="job-company">
+                                                {job.company || "Company not specified"}
+                                            </p>
+                                        </div>
 
-                                    <p className="location">
-                                        📍 {job.location}
-                                    </p>
-                                </div>
+                                        <div className="job-match-badge">
+                                            <span>SKILL MATCH</span>
+                                            <strong>{percentage}%</strong>
+                                        </div>
+                                    </div>
 
-                                <div className="match-box">
-                                    <span>Match</span>
-
-                                    <strong>
-                                        {job.matchPercentage}%
-                                    </strong>
-                                </div>
-
-                            </div>
-
-
-                            <p className="job-description">
-                                {job.description}
-                            </p>
-
-
-                            <div className="match-section">
-
-                                <p className="match-percentage">
-                                    Skill Match: {job.matchPercentage}%
-                                </p>
-
-                                <div className="match-bar">
-
-                                    <div
-                                        className="match-fill"
-                                        style={{
-                                            width: `${job.matchPercentage}%`
-                                        }}
-                                    ></div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div className="matching-skills">
-
-                                <p>Matching Skills:</p>
-
-                                <div className="skill-badges">
-
-                                    {job.matchingSkills.length > 0 ? (
-                                        job.matchingSkills.map(
-                                            (skill, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="skill-badge"
-                                                >
-                                                    {skill}
-                                                </span>
-                                            )
-                                        )
-                                    ) : (
-                                        <span className="no-skills">
-                                            No exact skill matches
+                                    <div className="job-meta">
+                                        <span>
+                                            📍 {job.location || "Location not specified"}
                                         </span>
-                                    )}
+                                    </div>
 
-                                </div>
+                                    <p className="job-description">
+                                        {job.description ||
+                                            "No description available for this role."}
+                                    </p>
 
-                            </div>
+                                    <div className="job-match-section">
+                                        <div className="job-match-labels">
+                                            <span>Resume compatibility</span>
+                                            <strong>{percentage}%</strong>
+                                        </div>
 
+                                        <div
+                                            className="job-match-bar"
+                                            role="progressbar"
+                                            aria-label={`Skill match for ${job.title || "job"}`}
+                                            aria-valuenow={percentage}
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                        >
+                                            <div
+                                                className="job-match-fill"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div className="job-footer">
+                                    <div className="job-skills-section">
+                                        <h3>Matching skills</h3>
 
-                                {job.applyLink ? (
-                                    <a
-                                        href={job.applyLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="apply-button"
-                                    >
-                                        Apply Now
-                                    </a>
-                                ) : (
-                                    <span className="no-link">
-                                        Application link unavailable
-                                    </span>
-                                )}
+                                        {matchingSkills.length > 0 ? (
+                                            <div className="job-skill-list">
+                                                {matchingSkills.map((skill, index) => (
+                                                    <span
+                                                        className="job-skill-badge"
+                                                        key={`${skill}-${index}`}
+                                                    >
+                                                        ✓ {skill}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="job-no-skills">
+                                                No exact skill matches found.
+                                            </p>
+                                        )}
+                                    </div>
 
-                            </div>
-
-                        </div>
-
-                    ))}
-
-                </div>
-            )}
-
-        </div>
+                                    <div className="job-card-footer">
+                                        {applyUrl ? (
+                                            <a
+                                                href={applyUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="job-apply-button"
+                                            >
+                                                Apply Now ↗
+                                            </a>
+                                        ) : (
+                                            <div className="job-apply-unavailable">
+                                                <p>
+                                                    No valid application URL is
+                                                    available for this job.
+                                                </p>
+                                                <span>
+                                                    Check the backend job data.
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </section>
+                )}
+            </div>
+        </main>
     );
 }
 

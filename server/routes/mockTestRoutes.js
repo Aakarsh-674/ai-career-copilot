@@ -61,6 +61,83 @@ router.post("/generate", authMiddleware, async (req, res) => {
     }
 });
 
+// Get user's mock test history
+router.get("/history", authMiddleware, async (req, res) => {
+    try {
+        const tests = await MockTest.find({
+    user: req.user.id
+})
+    .select("topic difficulty score totalQuestions createdAt")
+    .sort({ createdAt: -1 });
+
+res.json({ tests });
+    } catch (error) {
+        console.error("Error fetching mock test history:", error);
+
+        res.status(500).json({
+            message: "Failed to fetch mock test history"
+        });
+    }
+});
+
+
+router.get("/:id/review", authMiddleware, async (req, res) => {
+    try {
+        const test = await MockTest.findOne({
+            _id: req.params.id,
+            user: req.user.id
+        });
+
+        if (!test) {
+            return res.status(404).json({
+                message: "Mock test not found"
+            });
+        }
+
+        if (test.score === null || test.score === undefined) {
+            return res.status(400).json({
+                message: "This test has not been submitted yet"
+            });
+        }
+
+        const results = test.questions.map((question, index) => {
+            const userAnswer = test.userAnswers[index] || "";
+            const isCorrect = userAnswer === question.correctAnswer;
+
+            return {
+                questionNumber: index + 1,
+                question: question.question,
+                options: question.options,
+                userAnswer: userAnswer || null,
+                correctAnswer: question.correctAnswer,
+                isCorrect,
+                explanation: question.explanation
+            };
+        });
+
+        res.json({
+            test: {
+                _id: test._id,
+                topic: test.topic,
+                difficulty: test.difficulty,
+                totalQuestions: test.totalQuestions,
+                score: test.score,
+                percentage: Math.round(
+                    (test.score / test.totalQuestions) * 100
+                ),
+                createdAt: test.createdAt,
+                results
+            }
+        });
+    } catch (error) {
+        console.error("Error reviewing mock test:", error);
+
+        res.status(500).json({
+            message: "Failed to load test review"
+        });
+    }
+});
+
 // Get a mock test for attempting
 router.get("/:id", authMiddleware, async (req, res) => {
     try {
@@ -146,7 +223,14 @@ router.post("/:id/submit", authMiddleware, async (req, res) => {
         });
 
         test.score = score;
-        await test.save();
+
+// Save the submitted answers in the same order as the questions
+test.userAnswers = test.questions.map((question, index) => {
+    const answer = answers[index];
+    return typeof answer === "string" ? answer : "";
+});
+
+await test.save();
 
         res.json({
             message: "Test submitted successfully",
@@ -166,25 +250,5 @@ router.post("/:id/submit", authMiddleware, async (req, res) => {
         });
     }
 });
-// Get user's mock test history
-router.get("/history", authMiddleware, async (req, res) => {
-    try {
-        const tests = await MockTest.find({
-            user: req.user.id
-        }).sort({ createdAt: -1 });
-
-        res.json({
-            tests
-        });
-
-    } catch (error) {
-        console.error("Error fetching mock test history:", error);
-
-        res.status(500).json({
-            message: "Failed to fetch mock test history"
-        });
-    }
-});
-
 
 export default router;
