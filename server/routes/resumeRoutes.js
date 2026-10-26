@@ -96,47 +96,77 @@ router.get(
     }
 );
 
+
 router.get(
     "/analyze",
     authMiddleware,
     async (req, res) => {
         try {
-
-            // Get the latest resume
+            // Get the latest resume for the logged-in user
             const resume = await Resume.findOne({
                 user: req.user.id
             }).sort({ createdAt: -1 });
 
             if (!resume) {
                 return res.status(404).json({
-                    message: "No resume found"
+                    message: "No resume found. Please upload a resume first."
                 });
             }
 
-            // Send resume text to AI
+            if (!resume.extractedText?.trim()) {
+                return res.status(400).json({
+                    message: "No readable text found in the resume."
+                });
+            }
+
+            // Analyze the resume using Gemini
             const analysis = await analyzeResume(resume.extractedText);
 
+            // aiAnalyzer.js validates the JSON and returns a JSON string
             const parsedAnalysis = JSON.parse(analysis);
 
+            // Save the analysis in MongoDB
             resume.analysis = parsedAnalysis;
-
             await resume.save();
 
-            res.json({
-               message: "Resume analyzed successfully",
-               analysis: parsedAnalysis
+            return res.json({
+                message: "Resume analyzed successfully",
+                analysis: parsedAnalysis
             });
 
         } catch (error) {
+            console.error("AI analysis error:", error.message);
 
-            console.error("AI analysis error:", error);
+            const status = error.status ?? error.code;
 
-            res.status(500).json({
-                message: "Failed to analyze resume"
+            if (
+                status === 503 ||
+                status === 500 ||
+                status === 502 ||
+                status === 504 ||
+                error.message?.includes("UNAVAILABLE")
+            ) {
+                return res.status(503).json({
+                    message: "The AI service is temporarily busy. Please try again in a minute."
+                });
+            }
+
+            if (
+                error.message?.includes("JSON") ||
+                error.message?.includes("invalid resume analysis structure")
+            ) {
+                return res.status(502).json({
+                    message: "The AI returned an invalid analysis. Please try again."
+                });
+            }
+
+            return res.status(500).json({
+                message: "Failed to analyze resume. Please try again."
             });
         }
     }
 );
+
 
 router.get(
     "/analysis",
